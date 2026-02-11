@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
+	private GameFactory factory;
 	public static final int WIDTH = 320;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 2;
@@ -29,29 +30,27 @@ public class Game extends Canvas implements Runnable {
 	private Player player;
 	private BulletController bullets;
 	private BackgroundRenderer backgRenderer;
-	
-	
-	public void init(){
+
+
+	public void init() {
 		requestFocus();
-		
-		
+
+		factory = new SpriteGameFactory();
+
 		sprites = new SpritesImageLoader("/sprites.png");
-		try {			
+		try {
 			sprites.loadImage();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		// Add keyboard listener
+
 		addKeyListener(new InputHandler(this));
-		
-		// Initialize game components.
-		
-		
-		// Set player position at the bottom center.
-		player = new Player((WIDTH * SCALE - Player.WIDTH) / 2, HEIGHT * SCALE - 50 , this);
+
+		player = factory.createPlayer((WIDTH * SCALE - Player.WIDTH) / 2, HEIGHT * SCALE - 50, this);
+
 		bullets = new BulletController();
-		backgRenderer=new BackgroundRenderer();
+
+		backgRenderer = factory.createBackgroundRenderer();
 	}
 
 	public SpritesImageLoader getSprites(){
@@ -188,18 +187,12 @@ public class Game extends Canvas implements Runnable {
 		
 		Graphics g = bs.getDrawGraphics();
 		/////////////////////////////////
-		
-		try {
-			backgRenderer.render(g, this);
-			player.render(g);
-			bullets.render(g);
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (backgRenderer != null) {
+			backgRenderer.render(g);
 		}
-		
-		
-		
+		player.render(g);
+		bullets.render(g);
 		
 		////////////////////////////////
 		g.dispose();
@@ -221,6 +214,10 @@ public class Game extends Canvas implements Runnable {
 		frame.setVisible(true);
 		
 		game.start();
+	}
+
+	public GameFactory getFactory() {
+		return this.factory;
 	}
 	
 }
